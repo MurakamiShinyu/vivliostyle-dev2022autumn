@@ -1,0 +1,307 @@
+<!doctype html>
+<html lang="ja">
+  <head>
+    <meta charset="utf-8">
+    <title>Vivliostyle.jsにおけるWeb標準、CSSサポートの大改善</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="author" content="Shinyu Murakami">
+    <link rel="stylesheet" href="theme-slide/theme.css">
+  </head>
+  <body>
+    <section class="level1 cover" id="vivliostylejsにおけるweb標準cssサポートの大改善">
+      <h1 class="cover">Vivliostyle.jsにおけるWeb標準、CSSサポートの大改善</h1>
+      <p>2022-11-20<br>Shinyu Murakami<br>Vivliostyle Foundation</p>
+    </section>
+    <section class="level1 toc" role="doc-toc" id="目次">
+      <h1 class="toc" role="doc-toc">目次</h1>
+      <ol>
+        <li><a href="#web%E6%A8%99%E6%BA%96css%E3%82%B5%E3%83%9D%E3%83%BC%E3%83%88%E3%81%AE%E5%A4%A7%E6%94%B9%E5%96%84%E3%81%AE%E5%8F%96%E3%82%8A%E7%B5%84%E3%81%BF">Web標準CSSサポートの大改善の取り組み</a>
+          <ol>
+            <li><a href="#css%E7%B5%84%E7%89%88%E3%81%AA%E3%82%89web%E6%A8%99%E6%BA%96css%E3%81%AF%E4%BD%BF%E3%81%88%E3%81%A6%E5%BD%93%E7%84%B6">CSS組版ならWeb標準CSSは使えて当然</a></li>
+            <li><a href="#vivliostylejs%E3%81%AF%E3%83%96%E3%83%A9%E3%82%A6%E3%82%B6%E3%81%AEcss%E6%A9%9F%E8%83%BD%E3%82%92%E6%8B%A1%E5%BC%B5">Vivliostyle.jsはブラウザのCSS機能を拡張</a></li>
+            <li><a href="#%E6%9C%80%E6%96%B0%E3%81%AEcss%E6%A9%9F%E8%83%BD%E3%81%8C%E4%BD%BF%E3%81%88%E3%81%AA%E3%81%8B%E3%81%A3%E3%81%9F%E5%95%8F%E9%A1%8C%E3%82%92%E8%A7%A3%E6%B6%88">最新のCSS機能が使えなかった問題を解消</a></li>
+            <li><a href="#%E3%83%96%E3%83%A9%E3%82%A6%E3%82%B6%E3%81%A7%E4%BD%BF%E3%81%88%E3%82%8Bcss%E3%83%97%E3%83%AD%E3%83%91%E3%83%86%E3%82%A3%E3%81%A8%E5%80%A4%E3%81%AF%E5%9F%BA%E6%9C%AC%E7%9A%84%E3%81%AB%E3%81%99%E3%81%B9%E3%81%A6%E5%88%A9%E7%94%A8%E5%8F%AF%E8%83%BD%E3%81%AB-v217">ブラウザで使えるCSSプロパティと値は基本的にすべて利用可能に (v2.17~)</a></li>
+            <li><a href="#css%E5%A4%89%E6%95%B0%E3%82%92%E3%82%B5%E3%83%9D%E3%83%BC%E3%83%88-v217">CSS変数をサポート (v2.17~)</a></li>
+            <li><a href="#hasisnotwhere-%E6%93%AC%E4%BC%BC%E3%82%AF%E3%83%A9%E3%82%B9%E3%82%92%E3%83%95%E3%83%AB%E3%82%B5%E3%83%9D%E3%83%BC%E3%83%88-v219">:has()、:is()、:not()、:where() 擬似クラスをフルサポート (v2.19~)</a></li>
+            <li><a href="#%E3%81%BE%E3%81%A0%E6%AE%8B%E3%81%A3%E3%81%A6%E3%81%84%E3%82%8Bcss%E6%A8%99%E6%BA%96%E3%82%B5%E3%83%9D%E3%83%BC%E3%83%88%E3%81%AE%E8%AA%B2%E9%A1%8C">まだ残っているCSS標準サポートの課題</a></li>
+          </ol>
+        </li>
+        <li><a href="#%E7%B5%84%E7%89%88%E3%81%AB%E5%BD%B9%E3%81%AB%E7%AB%8B%E3%81%A4css%E6%A9%9F%E8%83%BD%E3%81%AE%E8%BF%BD%E5%8A%A0%E5%AE%9F%E8%A3%85">組版に役に立つCSS機能の追加実装</a>
+          <ol>
+            <li><a href="#%E3%81%93%E3%82%8C%E3%81%BE%E3%81%A7%E5%AE%9F%E8%A3%85%E3%81%97%E3%81%A6%E3%81%8D%E3%81%9Fcss%E7%B5%84%E7%89%88%E6%A9%9F%E8%83%BD">これまで実装してきたCSS組版機能</a></li>
+            <li><a href="#%E3%81%BE%E3%81%A0%E3%81%A7%E3%81%8D%E3%81%A6%E3%81%AA%E3%81%84css%E7%B5%84%E7%89%88%E6%A9%9F%E8%83%BD%E3%81%A8%E6%94%B9%E5%96%84%E8%AA%B2%E9%A1%8C">まだできてないCSS組版機能と改善課題</a></li>
+          </ol>
+        </li>
+        <li><a href="#vivliostyle%E3%81%A8%E3%81%9D%E3%82%8C%E4%BB%A5%E5%A4%96%E3%81%AEcss%E7%B5%84%E7%89%88%E3%83%84%E3%83%BC%E3%83%AB%E3%81%AE%E6%AF%94%E8%BC%83">Vivliostyleとそれ以外のCSS組版ツールの比較</a></li>
+      </ol>
+    </section>
+    <section id="web標準cssサポートの大改善の取り組み" class="level1">
+      <h1>Web標準CSSサポートの大改善の取り組み</h1>
+      <section id="css組版ならweb標準cssは使えて当然" class="level2">
+        <h2>CSS組版ならWeb標準CSSは使えて当然</h2>
+        <ul>
+          <li>CSS組版のメリット
+            <ul>
+              <li>Webの標準のCSSの知識があれば、自分でスタイルシートを作れること。</li>
+            </ul>
+          </li>
+          <li>標準のCSSを学ぶための材料はたくさんある。
+            <ul>
+              <li><a href="https://developer.mozilla.org/ja/docs/Web/CSS">MDNサイトのCSS入門</a>などお薦め。</li>
+            </ul>
+          </li>
+        </ul>
+      </section>
+      <section id="vivliostylejsはブラウザのcss機能を拡張" class="level2">
+        <h2>Vivliostyle.jsはブラウザのCSS機能を拡張</h2>
+        <ul>
+          <li>Vivliostyle.jsは、標準のWebブラウザ上で動く。</li>
+          <li>CSSでのレイアウトの機能の多くはブラウザでサポートされているCSSの機能を利用。
+            <ul>
+              <li>それだけでは足りないCSSの組版機能を追加実装</li>
+              <li>この方式だから基本的に<br>Vivliostyle.jsのCSS機能 ⊃ ブラウザのCSS機能<br>（Vivliostyleのほうがスーパーセット）
+                <ul>
+                  <li>しかし、これまで必ずしもそうなってなかった…</li>
+                </ul>
+              </li>
+            </ul>
+          </li>
+        </ul>
+      </section>
+      <section id="最新のcss機能が使えなかった問題を解消" class="level2">
+        <h2>最新のCSS機能が使えなかった問題を解消</h2>
+        <ul>
+          <li>Vivliostyle.jsでは、CSSの機能を拡張するため、CSSの構文解析やカスケーディングの処理、CSSプロパティやその値の指定が正しいかどうかを判定する処理などを自前でやってる。
+            <ul>
+              <li>そのベースになってるのは<a href="https://github.com/sorotokin/adaptive-layout/">Peter Sorotokin氏によるEPUB Adaptive Layout実装</a>のCSS処理。
+                <ul>
+                  <li>Vivliostyle.jsではそのしくみを引き継いで、CSS組版に必要なCSSの機能を拡充させてきた。</li>
+                  <li>しかし、最新のWeb標準のCSS機能をすぐに反映させられず、ギャップが生じてた。➡︎ その解消の取り組みへ</li>
+                </ul>
+              </li>
+            </ul>
+          </li>
+        </ul>
+      </section>
+      <section id="ブラウザで使えるcssプロパティと値は基本的にすべて利用可能に-v217" class="level2">
+        <h2>ブラウザで使えるCSSプロパティと値は基本的にすべて利用可能に (v2.17~)</h2>
+        <ul>
+          <li>CSSの処理を見直して、ブラウザで使えるCSSプロパティと値は基本的にすべて使えるように改良。
+            <ul>
+              <li>Vivliostyle.jsの中で定義されていないCSSプロパティや値でも、ブラウザでサポートされているなら有効にした。（以前は無効にしてた）</li>
+              <li>今後は、ブラウザでサポートされているCSSプロパティが機能しなかったらそれはバグなので<a href="https://github.com/vivliostyle/vivliostyle.js/issues">バグ報告ください！</a></li>
+            </ul>
+          </li>
+        </ul>
+        <section id="これでcssグリッドレイアウトが使える" class="level3">
+          <h3>これでCSSグリッドレイアウトが使える</h3>
+          <p><a href="https://developer.mozilla.org/ja/docs/Learn/CSS/CSS_layout/Grids">CSS Grid Layout</a> の例：</p>
+          <pre class="language-css"><code class="language-css"><span class="token selector"><span class="token class">.wrapper</span></span> <span class="token punctuation">{</span>
+  <span class="token property">display</span><span class="token punctuation">:</span> grid<span class="token punctuation">;</span>
+  <span class="token property">grid-template-columns</span><span class="token punctuation">:</span> <span class="token function">repeat</span><span class="token punctuation">(</span><span class="token number">3</span><span class="token punctuation">,</span> <span class="token number">1</span><span class="token unit">fr</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+  <span class="token property">grid-auto-rows</span><span class="token punctuation">:</span> <span class="token number">50</span><span class="token unit">px</span><span class="token punctuation">;</span>
+<span class="token punctuation">}</span> …</code></pre>
+          <style>.wrapper {
+display: grid;
+grid-template-columns: repeat(3, 1fr);
+grid-auto-rows: 50px;
+border: 2px solid #f76707;
+border-radius: 5px;
+background-color: #fff4e6;
+line-height: 1.5;
+font-size: 18px;
+}
+.wrapper > div {
+border: 2px solid #ffa94d;
+border-radius: 5px;
+background-color: #ffd8a8;
+padding: 0.5em;
+color: maroon;
+}
+.box1 {
+grid-column: 1 / 4;
+}
+.box2 {
+grid-row: 2 / 4;
+}</style>
+          <div class="wrapper">
+            <div class="box1">.box1 { grid-column: 1 / 4; }</div>
+            <div class="box2">.box2 { grid-row: 2 / 4; }</div>
+            <div class="box3">.box3</div>
+            <div class="box4">.box4</div>
+            <div class="box5">.box5</div>
+          </div>
+        </section>
+      </section>
+      <section id="css変数をサポート-v217" class="level2">
+        <h2>CSS変数をサポート (v2.17~)</h2>
+        <ul>
+          <li><a href="https://developer.mozilla.org/ja/docs/Web/CSS/Using_CSS_custom_properties">CSS変数（カスタムプロパティ）</a>は、スタイルシートをカスタマイズしやすくするのにとても便利。</li>
+          <li>任意のスタイルルールの中で使用できて、また、ページを定義する <code>@page {...}</code> の中でも使用可能。</li>
+        </ul>
+        <pre class="language-css"><code class="language-css"><span class="token selector"><span class="token pseudo-class">:root</span></span> <span class="token punctuation">{</span>
+  <span class="token variable">--page-width</span><span class="token punctuation">:</span> <span class="token number">148</span><span class="token unit">mm</span><span class="token punctuation">;</span>
+  <span class="token variable">--page-height</span><span class="token punctuation">:</span> <span class="token number">210</span><span class="token unit">mm</span><span class="token punctuation">;</span>
+<span class="token punctuation">}</span>
+<span class="token atrule"><span class="token rule">@page</span></span> <span class="token punctuation">{</span>
+  <span class="token property">size</span><span class="token punctuation">:</span> <span class="token function">var</span><span class="token punctuation">(</span><span class="token variable">--page-width</span><span class="token punctuation">)</span> <span class="token function">var</span><span class="token punctuation">(</span><span class="token variable">--page-height</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+  …
+<span class="token punctuation">}</span></code></pre>
+      </section>
+      <section id="hasisnotwhere-擬似クラスをフルサポート-v219" class="level2">
+        <h2>:has()、:is()、:not()、:where() 擬似クラスをフルサポート (v2.19~)</h2>
+        <ul>
+          <li>とくに<a href="https://developer.mozilla.org/ja/docs/Web/CSS/:has">:has() 擬似クラス</a>は画期的に便利。
+            <ul>
+              <li>子要素や後につづく要素が何であるかによる選択が可能に。</li>
+            </ul>
+          </li>
+        </ul>
+        <p><code>:has()</code> 擬似クラスの使用例：</p>
+        <pre class="language-css"><code class="language-css"><span class="token selector">section<span class="token pseudo-class">:has</span><span class="token punctuation">(</span>section<span class="token punctuation">)</span></span> <span class="token punctuation">{</span>
+  <span class="token comment">/* 内側にもsectionが存在するsectionのスタイル */</span>
+<span class="token punctuation">}</span>
+<span class="token selector">h1<span class="token pseudo-class">:has</span><span class="token punctuation">(</span><span class="token combinator">+</span> p<span class="token punctuation">)</span></span> <span class="token punctuation">{</span>
+  <span class="token comment">/* 段落pがあとに続く見出しh1のスタイル */</span>
+<span class="token punctuation">}</span></code></pre>
+      </section>
+      <section id="まだ残っているcss標準サポートの課題" class="level2">
+        <h2>まだ残っているCSS標準サポートの課題</h2>
+        <p>最新のブラウザで使えるのにVivliostyleでサポートできてないCSSの機能はまだあります。以下のものなど：</p>
+        <ul>
+          <li><a href="https://developer.mozilla.org/ja/docs/Web/CSS/::marker"><code>::marker</code>　箇条書きのマークを指定する擬似要素</a>　(<a href="https://github.com/vivliostyle/vivliostyle.js/issues/732">#723</a>)</li>
+          <li><a href="https://developer.mozilla.org/ja/docs/Web/CSS/@counter-style"><code>@counter-style</code>　カウンタースタイルを定義</a>　(<a href="https://github.com/vivliostyle/vivliostyle.js/issues/731">#731</a>)</li>
+          <li><a href="https://developer.mozilla.org/ja/docs/Web/CSS/@layer"><code>@layer</code>　カスケードレイヤー</a>　(<a href="https://github.com/vivliostyle/vivliostyle.js/issues/977">#977</a>)</li>
+          <li><a href="https://developer.mozilla.org/en-US/docs/Web/CSS/@container"><code>@container</code>　コンテナクエリー</a>　(<a href="https://github.com/vivliostyle/vivliostyle.js/issues/1046">#1046</a>)</li>
+        </ul>
+        <section id="もうすぐ標準になる最新css仕様対応も" class="level3">
+          <h3>もうすぐ標準になる最新CSS仕様対応も</h3>
+          <ul>
+            <li><a href="https://drafts.csswg.org/css-nesting/">CSS Nesting</a>　(<a href="https://github.com/vivliostyle/vivliostyle.js/issues/1032">#1032</a>)
+              <ul>
+                <li>CSSルールをネストできる（SCSSと似てる）</li>
+              </ul>
+            </li>
+            <li><a href="https://drafts.csswg.org/css-values-4/#lh">lh and rlh units</a>　(<a href="https://github.com/vivliostyle/vivliostyle.js/issues/1035">#1035</a>)
+              <ul>
+                <li><code>lh</code> は行高(line-height)を基準にした長さの単位。</li>
+                <li><code>rlh</code> はルート要素のline-heightが基準。</li>
+              </ul>
+            </li>
+          </ul>
+          <pre class="language-css"><code class="language-css"><span class="token selector">p</span> <span class="token punctuation">{</span> <span class="token comment">/* 段落間を1行分あける */</span>
+  <span class="token property">margin-block</span><span class="token punctuation">:</span> <span class="token number">1</span><span class="token unit">lh</span><span class="token punctuation">;</span>
+<span class="token punctuation">}</span>
+<span class="token selector">header</span> <span class="token punctuation">{</span> <span class="token comment">/* 見出しブロックを3行どりに */</span>
+  <span class="token property">block-size</span><span class="token punctuation">:</span> <span class="token number">3</span><span class="token unit">rlh</span><span class="token punctuation">;</span>
+<span class="token punctuation">}</span></code></pre>
+        </section>
+      </section>
+    </section>
+    <section id="組版に役に立つcss機能の追加実装" class="level1">
+      <h1>組版に役に立つCSS機能の追加実装</h1>
+      <section id="これまで実装してきたcss組版機能" class="level2">
+        <h2>これまで実装してきたCSS組版機能</h2>
+        <p>Vivliostyle.jsでは、ブラウザでは未サポートのページメディア用CSS仕様など組版に必要なCSS機能の実装を進めてきた。以下は主なもの：</p>
+        <ul>
+          <li><a href="https://www.w3.org/TR/css-text-4/">CSS Text Level 4</a>
+            <ul>
+              <li>hanging-punctuation: 行末の句読点のぶら下げなど</li>
+              <li>text-spacing: 和欧文間スペースや約物の詰めなど</li>
+            </ul>
+          </li>
+          <li><a href="https://www.w3.org/TR/css-page-3/">CSS Paged Media Level 3</a>
+            <ul>
+              <li>ページメディア用CSSの基本仕様</li>
+            </ul>
+          </li>
+          <li><a href="https://www.w3.org/TR/css-gcpm-3/">CSS Generated Content for Paged Media</a>
+            <ul>
+              <li>名前付き文字列（Named strings）：本文中の見出しなどの文字列をページヘッダーに柱として表示するのに使用</li>
+              <li>脚注（Footnotes）</li>
+              <li>ページセレクター <code>:nth(An+B)</code>：n番目のページのスタイル</li>
+              <li><code>target-counter()</code>：クロスリファレンスや目次・索引などの参照先ページ番号を生成するのに使用</li>
+            </ul>
+          </li>
+          <li><a href="https://www.w3.org/TR/css-break-3/">CSS Fragmentation Level 3</a>
+            <ul>
+              <li>改ページや改ページ禁止の制御など</li>
+            </ul>
+          </li>
+          <li><a href="https://www.w3.org/TR/css-page-floats-3/">CSS Page Floats</a>
+            <ul>
+              <li>ページの上部や下部に図版などをフロート配置</li>
+            </ul>
+          </li>
+        </ul>
+      </section>
+      <section id="まだできてないcss組版機能と改善課題" class="level2">
+        <h2>まだできてないCSS組版機能と改善課題</h2>
+        <p>以下はページメディア用CSS機能でまだできてない主なもの：</p>
+        <ul>
+          <li><a href="https://www.w3.org/TR/css-break-4/#break-margins">margin-breakプロパティ</a>　(<a href="https://github.com/vivliostyle/vivliostyle.js/issues/734">#734</a>)
+            <ul>
+              <li>ブロックのマージンがページの先頭になったときに、そのマージンを保持する(keep)か破棄(discard)するか指定。
+                <ul>
+                  <li>デフォルトの <code>margin-break: auto</code> は、なりゆき改ページでページの先頭になったブロックのマージンを破棄</li>
+                  <li><code>margin-break: keep</code> はマージンを保持する</li>
+                  <li><code>margin-break: discard</code> はマージンを破棄（0にする）</li>
+                </ul>
+              </li>
+            </ul>
+          </li>
+          <li><a href="https://www.w3.org/TR/css-gcpm-3/#running-elements">Running Elements</a>　(<a href="https://github.com/vivliostyle/vivliostyle.js/issues/424">#424</a>)
+            <ul>
+              <li>HTML文書内の要素をページマージン領域に柱（欄外見出し）として表示できるようにする機能</li>
+              <li>単純な文字列だけなら名前付き文字列（Named strings）で実現できるが、より複雑な要素を柱に表示するのに必要。</li>
+            </ul>
+          </li>
+          <li><a href="https://www.w3.org/TR/css-gcpm-3/#footnote-area"><code>@footnote</code> (footnote area)</a>　(<a href="https://github.com/vivliostyle/vivliostyle.js/issues/1045">#1045</a>)
+            <ul>
+              <li>脚注エリアのスタイルを指定</li>
+            </ul>
+          </li>
+          <li><a href="https://www.w3.org/TR/css-content-3/#leaders"><code>leader()</code> function</a>　(<a href="https://github.com/vivliostyle/vivliostyle.js/issues/1027">#1027</a>)
+            <ul>
+              <li>目次の項目とページ番号をつなぐ点線 ...... の出力に便利</li>
+            </ul>
+          </li>
+        </ul><!--
+        - [Bookmarks](https://www.w3.org/TR/css-gcpm-3/#bookmarks)　([#590](https://github.com/vivliostyle/vivliostyle.js/issues/590))
+          - 見出しからPDFのBookmarks（しおり）を作るのに便利。目次自動生成機能に使える。
+        - [Fixed positioning on paged media](https://drafts.csswg.org/css2/#fixed-positioning)　([#563](https://github.com/vivliostyle/vivliostyle.js/issues/563))
+          - CSS2のページメディア仕様でfixed positioningは各ページに繰り返し出力される必要がある。
+        -->
+        <section id="組版処理の改善の課題" class="level3">
+          <h3>組版処理の改善の課題</h3>
+          <ul>
+            <li>段組の指定がルート要素またはbody要素以外にあるとき、段組のページ分割処理がうまくいかない　(<a href="https://github.com/vivliostyle/vivliostyle.js/issues/579">#579</a>)</li>
+            <li>テーブル内で脚注が機能しない　(<a href="https://github.com/vivliostyle/vivliostyle.js/issues/438">#438</a>)</li>
+            <li>ページフロートの改良　(<a href="https://github.com/vivliostyle/vivliostyle.js/issues/543">#543</a>)</li>
+            <li>Mac以外の環境でハイフネーションが無効になる　(<a href="https://github.com/vivliostyle/vivliostyle.js/issues/569">#569</a>)
+              <ul>
+                <li>Vivliostyle CLIをWindows、LinuxあるいはDockerで使う場合（Chromiumの問題）。</li>
+              </ul>
+            </li>
+          </ul>
+        </section>
+      </section>
+    </section>
+    <section id="vivliostyleとそれ以外のcss組版ツールの比較" class="level1">
+      <h1>Vivliostyleとそれ以外のCSS組版ツールの比較</h1>
+      <section id="css組版ツールを比較評価してるサイト" class="level2">
+        <h2>CSS組版ツールを比較評価してるサイト</h2>
+        <p><a href="https://beta.print-css.rocks/">print-css.rocks</a>というサイトで、いくつかのCSS組版ツールをいろいろテストしての比較一覧が公開されている：</p>
+        <ul>
+          <li><a href="https://print-css.rocks/lessons">https://print-css.rocks/lessons</a></li>
+          <li><a href="https://beta.print-css.rocks/lessons">https://beta.print-css.rocks/lessons</a> ←2022秋版ベータ公開。この1年くらいのVivliostyleの進化が反映されている。</li>
+          <li>ほかと比較してのVivliostyleの強みと弱みが分かる。</li>
+          <li>ここにあるテストサンプルはCSSを学ぶのにも参考になる。</li>
+        </ul>
+      </section>
+    </section>
+    <section id="vivliostyleまだまだ開発途上なのでどうぞよろしく" class="level1">
+      <h1>Vivliostyleまだまだ開発途上なのでどうぞよろしく！</h1>
+    </section>
+  </body>
+</html>
